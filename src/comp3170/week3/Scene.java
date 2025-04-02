@@ -37,10 +37,10 @@ public class Scene {
 	private Matrix4f rotMatrix = new Matrix4f();
 	private Matrix4f scalMatrix = new Matrix4f();
 	
-	final private Vector3f OFFSET = new Vector3f(0.25f,0.0f,0.0f);
-	final private float MOVEMENT_SPEED = 1.0f;
+	final private Vector3f OFFSET = new Vector3f(0.5f,0.0f,0.0f);
+	final private float MOVEMENT_SPEED = 7.5f;
 	final private float SCALE = 0.1f;	
-	final private float ROTATION_RATE= TAU/12;
+	final private float ROTATION_RATE= TAU/5;
 	private float angle = 0;
 
 	public Scene() {
@@ -101,6 +101,8 @@ public class Scene {
 	}
 	
 	public void update(float deltaTime) {
+		angle += deltaTime;
+		
 		float movement = MOVEMENT_SPEED * deltaTime;
 		float rotation = ROTATION_RATE * deltaTime;
 		modelMatrix.translate(0.0f, movement, 0.0f).rotateZ(rotation);
