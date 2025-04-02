@@ -16,6 +16,7 @@ import org.joml.Vector4f;
 import comp3170.GLBuffers;
 import comp3170.Shader;
 import comp3170.ShaderLibrary;
+import static comp3170.Math.TAU;
 
 public class Scene {
 
@@ -30,6 +31,17 @@ public class Scene {
 	private int colourBuffer;
 
 	private Shader shader;
+	
+	private Matrix4f modelMatrix = new Matrix4f();
+	private Matrix4f transMatrix = new Matrix4f();
+	private Matrix4f rotMatrix = new Matrix4f();
+	private Matrix4f scalMatrix = new Matrix4f();
+	
+	final private Vector3f OFFSET = new Vector3f(0.25f,0.0f,0.0f);
+	final private float MOVEMENT_SPEED = 1.0f;
+	final private float SCALE = 0.1f;	
+	final private float ROTATION_RATE= TAU/12;
+	private float angle = 0;
 
 	public Scene() {
 
@@ -77,7 +89,22 @@ public class Scene {
 			// @formatter:on
 
 		indexBuffer = GLBuffers.createIndexBuffer(indices);
-
+		
+		//Using our methods:
+		//translationMatrix(offset.x, offset.y, transMatrix);
+		//scaleMatrix(scale.x, scale.y, scalMatrix);
+		//rotationMatrix(rotation, rotMatrix);
+		//modelMatrix.mul(transMatrix).mul(rotMatrix).mul(scalMatrix); // T R S order
+		
+		//Using JOML methods:
+		modelMatrix.translate(OFFSET).scale(SCALE);
+	}
+	
+	public void update(float deltaTime) {
+		float movement = MOVEMENT_SPEED * deltaTime;
+		float rotation = ROTATION_RATE * deltaTime;
+		modelMatrix.translate(0.0f, movement, 0.0f).rotateZ(rotation);
+		System.out.println("Updating");
 	}
 
 	public void draw() {
@@ -85,6 +112,9 @@ public class Scene {
 		shader.enable();
 		// set the attributes
 		shader.setAttribute("a_position", vertexBuffer);
+		
+		shader.setUniform("u_modelMatrix", modelMatrix);
+		
 		shader.setAttribute("a_colour", colourBuffer);
 
 		// draw using index buffer
@@ -133,9 +163,19 @@ public class Scene {
 	 */
 
 	public static Matrix4f rotationMatrix(float angle, Matrix4f dest) {
-
-		// TODO: Your code here
-
+		// clear the matrix to the identity matrix
+		dest.identity();
+		
+		//     [ cos -sin   0    0 ]
+		// R = [ sin  cos   0    0 ]
+	    //     [  0    0    0    0 ]
+		//     [  0    0    0    1 ]
+		
+		dest.m00((float) Math.cos(angle));
+		dest.m01((float) Math.sin(angle));
+		dest.m10((float) Math.sin(-angle));
+		dest.m11((float) Math.cos(angle));
+		
 		return dest;
 	}
 
@@ -150,9 +190,17 @@ public class Scene {
 	 */
 
 	public static Matrix4f scaleMatrix(float sx, float sy, Matrix4f dest) {
-
-		// TODO: Your code here
-
+		// clear the matrix to the identity matrix
+		dest.identity();
+		
+		//     [ sx 0  0  0 ]
+		// S = [ 0  sy 0  0 ]
+	    //     [ 0  0  0  0 ]
+		//     [ 0  0  0  1 ]
+		
+		dest.m00(sx);
+		dest.m11(sy);
+		
 		return dest;
 	}
 
